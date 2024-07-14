@@ -1,43 +1,63 @@
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			personajes: [],
+			planetas: [],
+			naves: [],
+			favorites: []
+
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			obtenerPersonajes: async () => {
+				try {
+					const response = await fetch("https://swapi.dev/api/people")
+					const data = await response.json()
+					setStore({ personajes: data.results })
+				} catch (error) {
+					console.log(error)
+				}
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+
+			obtenerPlanetas: async () => {
+				try {
+					const response = await fetch("https://swapi.dev/api/planets")
+					const data = await response.json()
+					setStore({ planetas: data.results })
+				} catch (error) {
+					console.log(error)
+				}
 			},
-			changeColor: (index, color) => {
-				//get the store
+
+			obtenerNaves: async () => {
+				try {
+					const response = await fetch("https://swapi.dev/api/starships");
+					const data = await response.json();
+					setStore({ naves: data.results.slice(0, 10) }); // Limitar a 10 naves
+				} catch (error) {
+					console.log(error);
+				}
+			},
+			
+
+			addToFavorites: (name) => {
 				const store = getStore();
+				let newFavorites = store.favorites;
+				if (!newFavorites.includes(name)) {
+					newFavorites.push(name);
+				}
+				setStore({ favorites: newFavorites, ...store })
+			},
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+			deleteFavorites: (name) => {
+				console.log(name)
+				const store = getStore();
+				let newFavorites = store.favorites;
+				const actualizado = newFavorites.filter((item) => item !== name)
+				setStore({ favorites: actualizado })
+			},
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
 		}
 	};
 };
